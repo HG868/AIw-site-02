@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-bg: #ffffff;
+            --color-text: #343541;
+            --color-text-secondary: #6e6e80;
+            --color-border: #e5e5e5;
+            --color-border-hover: #d1d5db;
+            --color-primary: #10a37f;
+            --color-primary-hover: #0d8c6d;
+            --color-surface: #f7f7f8;
+            --color-surface-hover: #f0f0f1;
+            --font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            height: 60px;
+            border-bottom: 1px solid transparent;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-md);
+            transition: background-color 0.2s;
+        }
+
+        .logo-container:hover {
+            background-color: var(--color-surface);
+        }
+
+        .logo {
+            width: 28px;
+            height: 28px;
+        }
+
+        .logo svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .brand-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dropdown-arrow {
+            width: 16px;
+            height: 16px;
+            opacity: 0.6;
+            transition: transform 0.2s;
+        }
+
+        .logo-container:hover .dropdown-arrow {
+            opacity: 1;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            outline: none;
+        }
+
+        .btn-login {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .btn-login:hover {
+            background-color: #333333;
+        }
+
+        .btn-register {
+            background-color: transparent;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-register:hover {
+            background-color: var(--color-surface);
+            border-color: var(--color-border-hover);
+        }
+
+        .btn-help {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-help:hover {
+            background-color: var(--color-surface);
+        }
+
+        .btn-help svg {
+            width: 20px;
+            height: 20px;
+            color: var(--color-text-secondary);
+        }
+
+        /* 主内容区域 */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 80px 20px 20px;
+            position: relative;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 32px;
+            margin-top: 60px;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+
+        /* 输入框容器 */
+        .input-container {
+            width: 100%;
+            max-width: 768px;
+            background-color: #ffffff;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .input-container:focus-within {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-border-hover);
+        }
+
+        .input-wrapper {
+            padding: 16px 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            min-height: 24px;
+            max-height: 200px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--color-text);
+            background: transparent;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .input-field::placeholder {
+            color: #9ca3af;
+        }
+
+        /* 功能按钮区域 */
+        .input-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px 12px;
+            gap: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-border);
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: var(--color-surface);
+            border-color: var(--color-border-hover);
+            color: var(--color-text);
+        }
+
+        .action-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .voice-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-border);
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .voice-btn:hover {
+            background-color: var(--color-surface);
+            border-color: var(--color-border-hover);
+            color: var(--color-text);
+        }
+
+        .voice-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 底部法律声明 */
+        .footer {
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .footer a {
+            color: var(--color-text);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .footer a:hover {
+            color: var(--color-primary);
+        }
+
+        /* 下拉菜单 */
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            left: 16px;
+            background-color: #ffffff;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            padding: 8px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--color-surface);
+        }
+
+        .dropdown-item svg {
+            width: 20px;
+            height: 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .dropdown-item span {
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: #f9f9f9;
+            border-right: 1px solid var(--color-border);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .new-chat-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            background-color: transparent;
+            color: var(--color-text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .new-chat-btn:hover {
+            background-color: var(--color-surface-hover);
+        }
+
+        .new-chat-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .chat-history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 2px;
+        }
+
+        .chat-history-item:hover {
+            background-color: var(--color-surface-hover);
+        }
+
+        .chat-history-item svg {
+            width: 18px;
+            height: 18px;
+            color: var(--color-text-secondary);
+            flex-shrink: 0;
+        }
+
+        .chat-history-text {
+            font-size: 14px;
+            color: var(--color-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-menu:hover {
+            background-color: var(--color-surface-hover);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 150;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 菜单按钮 */
+        .menu-btn {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-right: 8px;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--color-surface);
+        }
+
+        .menu-btn svg {
+            width: 24px;
+            height: 24px;
+            color: var(--color-text);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-container {
+                padding: 40px 16px 20px;
+            }
+
+            .welcome-section {
+                margin-top: 40px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+
+            .input-container {
+                max-width: 100%;
+            }
+
+            .action-buttons {
+                gap: 6px;
+            }
+
+            .action-btn {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+
+            .nav-right {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .btn-register {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+            body {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .top-nav {
+                width: 100%;
+                order: 1;
+            }
+
+            .sidebar {
+                transform: translateX(0);
+                position: relative;
+                height: auto;
+                min-height: calc(100vh - 60px);
+                order: 2;
+            }
+
+            .main-wrapper {
+                display: flex;
+                flex: 1;
+                order: 3;
+                min-height: calc(100vh - 60px);
+            }
+
+            .main-container {
+                flex: 1;
+            }
+
+            .footer {
+                width: 100%;
+                order: 4;
+            }
+        }
+
+        /* 加载动画 */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-text-secondary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* 消息气泡 */
+        .chat-messages {
+            width: 100%;
+            max-width: 768px;
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chat-messages.active {
+            display: flex;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            padding: 16px 20px;
+            border-radius: var(--radius-lg);
+        }
+
+        .message.user {
+            background-color: transparent;
+        }
+
+        .message.assistant {
+            background-color: #f7f7f8;
+        }
+
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.user .message-avatar {
+            background-color: var(--color-primary);
+        }
+
+        .message.assistant .message-avatar {
+            background-color: #000000;
+        }
+
+        .message-avatar svg {
+            width: 20px;
+            height: 20px;
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--color-text);
+        }
+
+        /* 设置模态框 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 480px;
+            max-height: 80vh;
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.3s;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: var(--color-surface);
+        }
+
+        .modal-close svg {
+            width: 20px;
+            height: 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        .setting-description {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        /* 开关 */
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background-color: #e5e5e5;
+            border-radius: var(--radius-full);
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .toggle.active {
+            background-color: var(--color-primary);
+        }
+
+        .toggle-thumb {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .toggle.active .toggle-thumb {
+            transform: translateX(20px);
+        }
+
+        /* ========== AI超级个体俱乐部弹窗样式 ========== */
+        .club-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
+        }
+
+        .club-modal-overlay.hidden {
+            display: none;
+        }
+
+        .club-modal-container {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 24rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 0 auto;
+            animation: clubModalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes clubModalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .club-modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .club-modal-desc {
+            font-size: 0.875rem;
+            color: #4b5563;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .club-modal-price {
+            color: #ef4444;
+            font-weight: 700;
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .club-modal-price-note {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .club-modal-qr-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .club-modal-qr-img {
+            width: 10rem;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .club-modal-btn {
+            width: 100%;
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.625rem 0;
+            border-radius: 9999px;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 600;
+        }
+
+        .club-modal-btn:hover {
+            background-color: #2563eb;
+        }
+
+        @media (min-width: 768px) {
+            .club-modal-container {
+                padding: 2rem;
+                max-width: 28rem;
+            }
+            .club-modal-title {
+                font-size: 1.5rem;
+                margin-bottom: 1.25rem;
+            }
+            .club-modal-desc {
+                font-size: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            .club-modal-price {
+                font-size: 1.125rem;
+            }
+            .club-modal-price-note {
+                font-size: 0.875rem;
+                margin-bottom: 1.25rem;
+            }
+            .club-modal-qr-wrapper {
+                margin-bottom: 1.25rem;
+            }
+            .club-modal-qr-img {
+                width: 13rem;
+            }
+            .club-modal-btn {
+                padding: 0.75rem 0;
+                font-size: 1.125rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .club-modal-container {
+                max-width: 32rem;
+            }
+        }
+
+        /* 锁定状态 - 背景模糊 */
+        body.modal-locked {
+            overflow: hidden;
+        }
+
+        body.modal-locked .main-wrapper,
+        body.modal-locked .top-nav,
+        body.modal-locked .sidebar,
+        body.modal-locked .footer {
+            filter: blur(4px);
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="new-chat-btn" onclick="startNewChat()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                新建对话
+            </button>
+        </div>
+        <div class="sidebar-content">
+            <div class="chat-history-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span class="chat-history-text">今天的对话</span>
+            </div>
+            <div class="chat-history-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span class="chat-history-text">昨天的项目讨论</span>
+            </div>
+            <div class="chat-history-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span class="chat-history-text">编程问题解答</span>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-menu" onclick="openSettings()">
+                <div class="user-avatar">U</div>
+                <div class="user-info">
+                    <div class="user-name">用户</div>
+                    <div class="user-email">user@example.com</div>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--color-text-secondary);">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="logo-container" onclick="toggleDropdown()">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.896zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <span class="brand-name">
+                    ChatGPT
+                    <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </span>
+            </div>
+            <!-- 下拉菜单 -->
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span>ChatGPT</span>
+                </div>
+                <div class="dropdown-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <span>DALL·E</span>
+                </div>
+                <div class="dropdown-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>探索 GPTs</span>
+                </div>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-login">登录</button>
+            <button class="btn btn-register">免费注册</button>
+            <button class="btn-help">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- AI超级个体俱乐部弹窗 -->
+    <div id="club-modal" class="club-modal-overlay">
+        <div class="club-modal-container">
+            <!-- 标题 -->
+            <h2 class="club-modal-title">AI超级个体俱乐部</h2>
+            
+            <!-- 描述文案 -->
+            <p class="club-modal-desc">都2026了，还在AI焦虑？</p>
+            <p class="club-modal-desc">截至目前，已经有76.3%的成员认可了我们。</p>
+            <p class="club-modal-desc">我们坚决反对"艺术家作风"，为"开放 互助"的共同理想而战！</p>
+            
+            <!-- 价格 -->
+            <p class="club-modal-price">春节特惠：仅需3.99元</p>
+            <p class="club-modal-price-note">会员费只是过滤机制，支付即可解锁"AI超级个体俱乐部"并加入互助组织</p>
+            
+            <!-- 二维码 -->
+            <div class="club-modal-qr-wrapper">
+                <img src="./223510.png" alt="支付二维码" class="club-modal-qr-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%23f3f4f6%22 width=%22200%22 height=%22200%22/><text fill=%22%239ca3af%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>二维码</text></svg>'">
+            </div>
+            
+            <!-- 按钮 -->
+            <button class="club-modal-btn" onclick="handleClubModalAction()">扫码报名</button>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-wrapper">
+        <main class="main-container">
+            <!-- 欢迎区域 -->
+            <div class="welcome-section" id="welcomeSection">
+                <h1 class="welcome-title">今天有什么计划？</h1>
+            </div>
+
+            <!-- 聊天消息区域 -->
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <!-- 输入框区域 -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="input-field" 
+                        id="inputField"
+                        placeholder="有问题，尽管问"
+                        rows="1"
+                        oninput="autoResize(this)"
+                        onkeydown="handleKeyDown(event)"
+                    ></textarea>
+                </div>
+                <div class="input-actions">
+                    <div class="action-buttons">
+                        <button class="action-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                            </svg>
+                            附件
+                        </button>
+                        <button class="action-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            搜索
+                        </button>
+                        <button class="action-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                            学习
+                        </button>
+                        <button class="action-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            创建图片
+                        </button>
+                    </div>
+                    <button class="voice-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        语音
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 底部法律声明 -->
+    <footer class="footer">
+        向 AI 聊天机器人 ChatGPT 发送消息即表示，你同意我们的<a href="#">条款</a>并已阅读我们的<a href="#">隐私政策</a>。查看 <a href="#">Cookie 首选项</a>。
+    </footer>
+
+    <!-- 设置模态框 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">设置</h2>
+                <button class="modal-close" onclick="closeSettings()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">深色模式</div>
+                        <div class="setting-description">切换到深色主题</div>
+                    </div>
+                    <div class="toggle" id="darkModeToggle" onclick="toggleDarkMode()">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">自动播放语音</div>
+                        <div class="setting-description">自动播放 AI 回复的语音</div>
+                    </div>
+                    <div class="toggle" onclick="this.classList.toggle('active')">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">显示建议</div>
+                        <div class="setting-description">在对话中显示建议提示</div>
+                    </div>
+                    <div class="toggle active" onclick="this.classList.toggle('active')">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 自动调整输入框高度
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        }
+
+        // 处理键盘事件
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const inputField = document.getElementById('inputField');
+            const message = inputField.value.trim();
+            
+            if (!message) return;
+
+            // 隐藏欢迎区域，显示聊天区域
+            document.getElementById('welcomeSection').style.display = 'none';
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.classList.add('active');
+
+            // 添加用户消息
+            addMessage(message, 'user');
+
+            // 清空输入框
+            inputField.value = '';
+            inputField.style.height = 'auto';
+
+            // 模拟 AI 回复
+            setTimeout(() => {
+                addMessage('这是一个模拟的 AI 回复。在实际应用中，这里会连接到 ChatGPT API 获取真实的回复。', 'assistant');
+            }, 1000);
+        }
+
+        // 添加消息到聊天区域
+        function addMessage(content, type) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatarSvg = type === 'user' 
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.896zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" fill="currentColor"/></svg>';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatarSvg}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 切换下拉菜单
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('active');
+        }
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', function(event) {
+            const logoContainer = document.querySelector('.logo-container');
+            const dropdown = document.getElementById('dropdownMenu');
+            if (!logoContainer.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // 切换侧边栏
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // 关闭侧边栏
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // 打开设置
+        function openSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.add('active');
+            closeSidebar();
+        }
+
+        // 关闭设置
+        function closeSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.remove('active');
+        }
+
+        // 切换深色模式
+        function toggleDarkMode() {
+            const toggle = document.getElementById('darkModeToggle');
+            toggle.classList.toggle('active');
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // 新建对话
+        function startNewChat() {
+            document.getElementById('welcomeSection').style.display = 'block';
+            document.getElementById('chatMessages').classList.remove('active');
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('inputField').value = '';
+            closeSidebar();
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('settingsModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeSettings();
+            }
+        });
+
+        // ========== AI超级个体俱乐部弹窗控制 ==========
+        
+        // 显示弹窗并锁定页面
+        function showClubModal() {
+            const modal = document.getElementById('club-modal');
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-locked');
+        }
+
+        // 隐藏弹窗并解锁页面（需要验证才能调用）
+        function hideClubModal() {
+            const modal = document.getElementById('club-modal');
+            modal.classList.add('hidden');
+            document.body.classList.remove('modal-locked');
+        }
+
+        // 按钮点击事件
+        function handleClubModalAction() {
+            // 按钮点击不执行任何操作
+        }
+
+        // 页面加载完成后自动显示弹窗（全局锁定）
+        document.addEventListener('DOMContentLoaded', function() {
+            showClubModal();
+        });
+
+        // 阻止点击遮罩关闭（强制必须完成操作）
+        document.getElementById('club-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                // 点击遮罩时震动提示，不允许关闭
+                const container = this.querySelector('.club-modal-container');
+                container.style.animation = 'none';
+                setTimeout(() => {
+                    container.style.animation = 'clubModalShake 0.5s ease-in-out';
+                }, 10);
+            }
+        });
+
+        // 添加震动动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes clubModalShake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 阻止ESC键关闭（强制必须完成操作）
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('club-modal');
+                if (!modal.classList.contains('hidden')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // 震动提示
+                    const container = modal.querySelector('.club-modal-container');
+                    container.style.animation = 'none';
+                    setTimeout(() => {
+                        container.style.animation = 'clubModalShake 0.5s ease-in-out';
+                    }, 10);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

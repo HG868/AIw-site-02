@@ -1,0 +1,24 @@
+# 忽略文件
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.temp
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 不需要上传的文件
+fix_modal_targeted.py
+imgupscaler.ai_1770517756135.html
